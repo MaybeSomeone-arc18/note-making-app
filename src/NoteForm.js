@@ -1,16 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function NoteForm({ onAdd }) {
+export default function NoteForm({ onAdd, onUpdate, editData }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (editData) {
+      setTitle(editData.title);
+      setContent(editData.content);
+    }
+  }, [editData]);
+
+  function handleSubmit(e) {
     e.preventDefault();
-    if (!title || !content) return;
-    onAdd({ title, content });
+    const note = { title, content };
+
+    if (editData) {
+      onUpdate(note); // call update if editing
+    } else {
+      onAdd(note); // else add new
+    }
+
+    // reset form
     setTitle("");
     setContent("");
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -24,7 +38,7 @@ export default function NoteForm({ onAdd }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
-      <button>Add</button>
+      <button type="submit">{editData ? "Update" : "Add"}</button>
     </form>
   );
 }
